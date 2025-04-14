@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Posts</title>
+  </head>
+  <body>
+    <button id="get">Get Posts</button>
+    <button id="create">Create Post</button>
+
+    <script>
+      const getButton = document.getElementById("get");
+      const createButton = document.getElementById("create");
+
+      getButton.addEventListener("click", () => {
+        fetch("http://localhost:8080/feed/posts")
+          .then((res) => res.json())
+          .then((resData) => console.log(resData))
+          .catch((err) => console.log(err));
+      });
+
+      createButton.addEventListener("click", () => {
+        fetch("http://localhost:8080/feed/post", {
+          method: "POST",
+          body: JSON.stringify({
+            title: "First Poet",
+            content: "First Poet Content !",
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => res.json())
+          .then((resData) => console.log(resData))
+          .catch((err) => console.log(err));
+      });
+    </script>
+  </body>
+</html>
