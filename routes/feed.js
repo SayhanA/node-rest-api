@@ -4,6 +4,7 @@ const {
   createPost,
   getPost,
   updatePost,
+  deletePost,
 } = require("../controllers/feed");
 
 const router = require("express").Router();
@@ -21,7 +22,7 @@ router.post(
   createPost
 );
 
-// GET Single post: /feed/post
+// Update post: /feed/post
 router.get("/post/:postId", getPost);
 
 router.put(
@@ -32,5 +33,8 @@ router.put(
   ],
   updatePost
 );
+
+// Delete post: /feed/post
+router.delete("/post/:postId", deletePost);
 
 module.exports = router;

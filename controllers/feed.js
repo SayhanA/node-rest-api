@@ -136,6 +136,32 @@ exports.updatePost = (req, res, next) => {
     });
 };
 
+exports.deletePost = (req, res, next) => {
+  const postId = req.params.postId;
+  Post.findById(postId)
+    .then((post) => {
+      if (!post) {
+        const error = new Error("Invalid post id!");
+        error.statusCode = 422;
+        throw error;
+      }
+
+      //check if user loged in
+      clearImage(post?.imageUrl);
+      return Post.findByIdAndDelete(postId);
+    })
+    .then((result) => {
+      console.log({ deletePost: result });
+      res.status(200).json({ message: "Deleted post", post: result });
+    })
+    .catch((err) => {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next();
+    });
+};
+
 const clearImage = (filePath) => {
   filePath = path.join(__dirname, "..", filePath);
   fs.unlink(filePath, (err) => console.log(err));
