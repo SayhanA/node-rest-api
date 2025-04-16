@@ -2,9 +2,11 @@ const path = require("path");
 const multer = require("multer");
 const express = require("express");
 const bodyParser = require("body-parser");
-const feedController = require("./routes/feed");
 const { default: mongoose } = require("mongoose");
+
 const PORT = 8080;
+const feedRoute = require("./routes/feed");
+const authRoute = require("./routes/auth");
 
 const app = express();
 
@@ -24,7 +26,7 @@ const fileFilter = (req, file, cb) => {
 // Storage configuration
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "images"); 
+    cb(null, "images");
   },
   filename: (req, file, cb) => {
     cb(
@@ -54,13 +56,15 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/feed", feedController);
+app.use("/auth", authRoute);
+app.use("/feed", feedRoute);
 
 app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;
   const message = error.message;
-  res.status(status).json({ message: message });
+  const data = error?.data;
+  res.status(status).json({ message: message, data: data });
 });
 
 mongoose
