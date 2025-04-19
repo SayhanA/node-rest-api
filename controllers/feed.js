@@ -37,7 +37,6 @@ exports.getPosts = (req, res, next) => {
 };
 
 exports.createPost = (req, res, next) => {
-  console.log(req.file);
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -77,7 +76,7 @@ exports.createPost = (req, res, next) => {
       res.status(201).json({
         message: "Post created successfully",
         post: post,
-        creator: {_id: creator._id, name: creator.name},
+        creator: { _id: creator._id, name: creator.name },
       });
     })
     .catch((err) => {
@@ -137,6 +136,12 @@ exports.updatePost = (req, res, next) => {
         throw error;
       }
 
+      if (post.creator.toString() !== req.userId) {
+        const error = new Error("Unauthorized user!");
+        error.statusCode = 403;
+        throw error;
+      }
+
       if (imageUrl !== post.imageUrl) {
         clearImage(post.imageUrl);
       }
@@ -167,12 +172,24 @@ exports.deletePost = (req, res, next) => {
         throw error;
       }
 
+      if (post.creator.toString() !== req.userId) {
+        const error = new Error("Unauthorized user!");
+        error.statusCode = 403;
+        throw error;
+      }
+
       //check if user loged in
       clearImage(post?.imageUrl);
       return Post.findByIdAndDelete(postId);
     })
+    .then(() => {
+      return User.findById(req.userId);
+    })
+    .then((user) => {
+      user.posts.pull(postId);
+      return user.save();
+    })
     .then((result) => {
-      console.log({ deletePost: result });
       res.status(200).json({ message: "Deleted post", post: result });
     })
     .catch((err) => {
